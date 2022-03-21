@@ -1,0 +1,23 @@
+logging:
+  config: classpath:log4j2.xml
+
+server:
+  port: 8081
+spring:
+  profiles:
+    active:
+    - discoveryclient
+  application:
+    name: gateway-server
+  cloud:
+#    consul:
+#      host: localhost
+#      port: 7777
+#      discovery:
+#        prefer-ip-address: true
+#        ip-address: 127.0.0.1
+#        register: false   # 网关不需要被其它服务发现，不需要向服务中心注册
+    gateway:
+      discovery:
+        locator:
+          enabled: true

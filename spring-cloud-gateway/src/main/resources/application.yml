@@ -1,0 +1,45 @@
+logging:
+  config: classpath:log4j2.xml
+
+server:
+  port: 8080
+spring:
+  application:
+    name: gateway-server
+  redis:
+    host: 172.16.139.80
+    port: 41000
+    password: redis_password
+  profiles:
+    active:
+    - auto
+  cloud:
+#    consul:
+#      host: localhost
+#      port: 7777
+#      discovery:
+#        prefer-ip-address: true
+#        ip-address: 127.0.0.1
+#        register: false
+    nacos:
+      discovery:
+        ip: 127.0.0.1
+        register-enabled: true
+        server-addr: localhost:8848
+    gateway:
+      metrics:
+        enabled: true
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: "http://www.xinyues.com"
+            allowedMethods:
+              - GET
+          
+      
+     
+management: 
+  endpoints: 
+    web: 
+      exposure:  
+        include: "*"

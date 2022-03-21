@@ -1,0 +1,111 @@
+spring: 
+  cloud:
+    gateway: 
+      routes:
+      - id: after_route
+        uri: http://www.xinyues.com
+        predicates:
+        - Path=/after
+        - After=2029-01-20T17:42:47.789-07:00[America/Denver]
+        filters:
+        - name: RewritePath
+          args:
+            regexp: /after
+            replacement: /
+      - id: host_route
+        uri: http://www.cnblogs.com
+        predicates:
+        - Path=/host
+        - Host=localhost:8080
+        filters:
+        - name: RewritePath
+          args:
+            regexp: /host
+            replacement: /
+
+      - id: app-a-route     # 根据服务名路由
+        uri: lb://app-a   #配置服务id
+        predicates:
+        - name: Path
+          args:
+            pattern: /app-a/** # 匹配的路径
+        filters:
+        - name: RewritePath
+          args:
+            regexp: /app-a/(?<remaining>.*)
+            replacement: /${remaining}
+        - name: AddRequestHeader
+          args:
+            name: X-Request-Foo
+            value: Bar
+        - name: AddRequestParameter
+          args: 
+            name: foo
+            value: bar
+        - name: AddResponseHeader
+          args:
+            name: foo
+            value: bar2
+        - name: Hystrix
+          args:
+            name: fallbackcmd   #熔断的名字，可以随便命名
+            fallbackUri: forward:/fallback   # 如果触发了熔断，自动跳转到这个URI里面，在任务一个controller里面有这个URI即可。
+        - name: RequestRateLimiter
+          args: 
+            redis-rate-limiter.replenishRate: 2
+            redis-rate-limiter.burstCapacity: 4
+            rate-limiter: "#{@myRateLimiter}"    # 指定使用的限流器bean
+            key-resolver: "#{@ipKeyResolver}"   #以ip做为限流的key
+      
+      - id: app-a-route-fallback
+        uri: lb://app-b
+        predicates:
+        - Path=/fallback
+        filters:
+        - name: RewritePath
+          args:
+            regexp: /fallback
+            replacement: /app/fallback
+        - name: FallbackHeaders
+          args:
+            executionExceptionTypeHeaderName: Test-Header
+            executionExceptionMessageHeaderName: Message-Name
+            
+      - id: prefixpath_route
+        uri: http://localhost:8080
+        predicates:
+        - Path=/redirect_test
+        filters:
+        - RedirectTo=301,http://www.xinyues.com
+      - id: setstatusstring_route
+        uri: http://localhost:8080
+        predicates:
+        - Path=/bad_str
+        filters:
+        - SetStatus=BAD_REQUEST
+      - id: setstatusint_route
+        uri: http://localhost:8080
+        predicates:
+        - Path=/bad_int
+        filters:
+        - SetStatus=404
+      - id: forward_routing_filter
+        uri: forward:///app
+        order: 10000
+        predicates:
+        - Path=/forwardFilter
+        filters:
+        - PrefixPath=/gateway
+      - id: balanceclient_route
+        uri: lb://app-a
+        predicates:
+        - Path=/app-a/app/**
+        
+#hystrix.command.fallbackcmd.execution.isolation.thread.timeoutInMilliseconds
+hystrix: 
+  command:
+    fallbackcmd:
+        execution: 
+            isolation:
+              thread:
+                timeoutInMilliseconds: 15000

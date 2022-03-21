@@ -1,0 +1,21 @@
+logging:
+  config: classpath:log4j2.xml
+server:
+  port: 9003
+ 
+spring:
+  application:
+    name: app-b
+  cloud:
+#    consul:
+#      host: localhost
+#      port: 7777
+#      discovery:
+#        prefer-ip-address: true
+#        ip-address: 127.0.0.1
+#        catalog-services-watch-delay: 10000
+#        health-check-critical-timeout: 60s    # 注册成功之后，如果关闭此服务，consul将检测60s,如果60s之后还检测不到此服务，将会把此服务从注册列表中移除
+     nacos:
+      discovery:
+        server-addr: localhost:8848
+        ip: localhost

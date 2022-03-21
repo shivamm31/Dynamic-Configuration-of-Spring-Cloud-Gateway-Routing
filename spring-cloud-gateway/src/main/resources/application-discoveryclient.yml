@@ -1,0 +1,31 @@
+spring: 
+  cloud: 
+    gateway: 
+      discovery:
+        locator:
+          enabled: true
+          predicates:
+          - name: Path
+            args:
+              pattern: "'/'+serviceId+'/**'"
+          filters: 
+          - name: AddRequestHeader
+            args: 
+             name: "'foo'"
+             value: "'bar'"
+          - name: RewritePath
+            args:
+              regexp: "'/' + serviceId + '/(?<remaining>.*)'"
+              replacement: "'/${remaining}'"
+#          - name: RedirectTo
+#            args:
+#              status: 301
+#              url: "'http://www.xinyues.com'"
+      routes: 
+      - id: prefixpath_route
+        uri: http://localhost:8080
+        predicates:
+        - Path=/redirect_test
+        filters:
+        - RedirectTo=301,http://www.xinyues.com
+       

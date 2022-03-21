@@ -1,0 +1,10 @@
+/*.project
+/.settings
+/spring-cloud-app-a/*.classpath
+/spring-cloud-app-a/*.project
+/spring-cloud-app-a/.settings/*.prefs
+/spring-cloud-app-a/.settings
+target
+*.project
+*.classpath
+.settings
